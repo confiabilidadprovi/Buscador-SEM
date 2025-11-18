@@ -83,8 +83,8 @@
 
         // Buscar cuando se hace clic en el botón
         btnBuscar.addEventListener('click', () => {
-          const POTENCIA = buscador.value.trim().tolowerCase();
-          mostrar('motor ${POTENCIA}');
+          const POTENCIA = buscador.value.trim().toLowerCase();
+          mostrar(`motor ${POTENCIA}`);
         });
 
         // También permitir buscar presionando Enter
