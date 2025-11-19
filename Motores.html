@@ -26,19 +26,19 @@
 </head>
 <body>
 
-  <h2>Buscador de Motores Taller</h2>
+  <h2>Buscador de Motores</h2>
 
   <!-- === FILTROS === -->
-  <input type="text" id="filtroPotencia" placeholder="Filtrar por POTENCIA">
   <input type="text" id="filtroDenominacion" placeholder="Filtrar por DENOMINACIÓN">
-  <input type="text" id="filtroFrame" placeholder="Filtrar por FRAME">
+  <input type="text" id="filtroPotencia" placeholder="Filtrar por POTENCIA">
+   <input type="text" id="filtroFrame" placeholder="Filtrar por FRAME">
   <button id="btnBuscar">Buscar</button>
 
   <table id="tabla">
     <thead></thead>
     <tbody></tbody>
   </table>
-
+//Java Script que filtra en el archivo
   <script>
     const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vScl46Cf6OY45LpKuYbI1cF-y5tRMFszwJNGW_oL_Tld2pSgUp6JGEJEasGGSKEfWilu9zTSphSMTUP/pub?output=csv';
 
