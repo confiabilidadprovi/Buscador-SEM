@@ -97,8 +97,8 @@
             const filtroRel = parseInt(rel);
 
             const coincideRel =
-              cau === '' ||
-              (!isNaN(valorRel) && !isNaN(filtroRel) && valorCau === filtroRel);
+              rel === '' ||
+              (!isNaN(valorRel) && !isNaN(filtroRel) && valorRel === filtroRel);
 
             // AÑADIR FILA SI TODOS COINCIDEN
             if (coincidePot && coincideDen && coincideRel) {
