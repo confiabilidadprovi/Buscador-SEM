@@ -7,15 +7,12 @@
     body { font-family: Aptos Narrow, sans-serif; margin: 40px; background: #f8f9fa; }
     h2 { color: #333; }
     input {
-      width: 400px; padding: 10px; margin-bottom: 20px;
+      width: 300px; padding: 10px; margin-right: 10px; margin-bottom: 20px;
       border: 1px solid #ccc; border-radius: 5px;
     }
     button {
       padding: 10px 20px; background-color: #4CAF50; color: white;
       border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;
-    }
-    button:hover {
-      background-color: #4CAF50;
     }
     table {
       width: 100%; border-collapse: collapse; background: white;
@@ -30,19 +27,20 @@
 <body>
 
   <h2>Buscador de Reductores</h2>
-  
-  <input type="text" id="buscador" placeholder="Ejemplo: reductor 100 hp">
+
+  <!-- === FILTROS === -->
+  <input type="text" id="filtroDenominacion" placeholder="Filtrar por DENOMINACIÓN">
+  <input type="text" id="filtroPotencia" placeholder="Filtrar por POTENCIA">
+  <input type="text" id="filtroRelacion" placeholder="Filtrar por RELACION">
   <button id="btnBuscar">Buscar</button>
 
   <table id="tabla">
     <thead></thead>
     <tbody></tbody>
   </table>
-
+<!--Java Script que filtra en el archivo-->
   <script>
-    // === URL de tu hoja publicada en CSV ===
     const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRezy-vlcxIOjYdQxCu961W1U-dEXwoJPW3V_pYcNHqKu6mJNh7LgHkNUjqX1o8K5jk1gScFGY0jctz/pub?output=csv';
-
 
     fetch(url)
       .then(res => res.text())
@@ -50,23 +48,60 @@
         const rows = data.split('\n').map(r => r.split(','));
         const headers = rows[0];
         const body = rows.slice(1);
+
         const thead = document.querySelector('#tabla thead');
         const tbody = document.querySelector('#tabla tbody');
-        const buscador = document.getElementById('buscador');
+        
+        const filtroDenominacion = document.getElementById('filtroDenominacion');
+        const filtroPotencia = document.getElementById('filtroPotencia');
+        const filtroRelacion = document.getElementById('filtroRelacion');
         const btnBuscar = document.getElementById('btnBuscar');
 
-        // Crear encabezados dinámicamente
+        // Crear encabezados dinámicos
         thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
 
-        // Función para mostrar filas según filtro
-        function mostrar(filtro = '') {
+        // Función de filtrado general
+        function mostrar() {
+          const den = filtroDenominacion.value.trim().toLowerCase();
+          const pot = filtroPotencia.value.trim().toLowerCase();
+          const rel = filtroRelacion.value.trim().toLowerCase();
+          
           tbody.innerHTML = '';
-          const terminos = filtro.toLowerCase().split(' ').filter(t => t);
 
           body.forEach(row => {
-            const texto = row.join(' ').toLowerCase();
-            const coincide = terminos.every(t => texto.includes(t));
-            if (coincide) {
+            const fila = {};
+            headers.forEach((h, i) => fila[h.trim().toLowerCase()] = row[i].trim().toLowerCase());
+
+            // ===============================
+            // FILTRO POR POTENCIA (ENTERO)
+            // ===============================
+            const valorPot = parseInt(fila['potencia']);  
+            const filtroPot = parseInt(pot);
+
+            const coincidePot =
+              pot === '' ||
+              (!isNaN(valorPot) && !isNaN(filtroPot) && valorPot === filtroPot);
+
+            // ===============================
+            // FILTRO DENOMINACIÓN (PARCIAL)
+            // ===============================
+            const coincideDen =
+              den === '' ||
+              fila['denominacion']?.includes(den) ||
+              fila['denominacion']?.includes(den);
+
+            // ===============================
+            // FILTRO CAUDAL (PARCIAL)
+            // ===============================
+            const valorRel = parseInt(fila['relacion']);  
+            const filtroRel = parseInt(rel);
+
+            const coincideRel =
+              cau === '' ||
+              (!isNaN(valorRel) && !isNaN(filtroRel) && valorCau === filtroRel);
+
+            // AÑADIR FILA SI TODOS COINCIDEN
+            if (coincidePot && coincideDen && coincideRel) {
               const tr = document.createElement('tr');
               row.forEach(c => {
                 const td = document.createElement('td');
@@ -78,19 +113,19 @@
           });
         }
 
-        // Mostrar todo inicialmente
+        // Mostrar todo al inicio
         mostrar();
 
-        // Buscar cuando se hace clic en el botón
-        btnBuscar.addEventListener('click', () => mostrar(buscador.value));
+        // Botón Buscar
+        btnBuscar.addEventListener('click', mostrar);
 
-        // También permitir buscar presionando Enter
-        buscador.addEventListener('keypress', e => {
-          if (e.key === 'Enter') mostrar(buscador.value);
+        // Enter en cualquier campo
+        [filtroPotencia, filtroDenominacion, filtroCaudal].forEach(input => {
+          input.addEventListener('keypress', e => {
+            if (e.key === 'Enter') mostrar();
+          });
         });
-      })
-      .catch(err => {
-        console.error('Error al cargar la hoja de cálculo:', err);
+
       });
   </script>
 
