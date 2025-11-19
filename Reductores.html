@@ -120,7 +120,7 @@
         btnBuscar.addEventListener('click', mostrar);
 
         // Enter en cualquier campo
-        [filtroPotencia, filtroDenominacion, filtroCaudal].forEach(input => {
+        [filtroPotencia, filtroDenominacion, filtroRelacion].forEach(input => {
           input.addEventListener('keypress', e => {
             if (e.key === 'Enter') mostrar();
           });
