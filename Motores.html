@@ -2,20 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Buscador de Motores taller</title>
+  <title>Buscador de Motores Taller</title>
   <style>
     body { font-family: Aptos Narrow, sans-serif; margin: 40px; background: #f8f9fa; }
     h2 { color: #333; }
     input {
-      width: 400px; padding: 10px; margin-bottom: 20px;
+      width: 300px; padding: 10px; margin-right: 10px; margin-bottom: 20px;
       border: 1px solid #ccc; border-radius: 5px;
     }
     button {
       padding: 10px 20px; background-color: #4CAF50; color: white;
       border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;
-    }
-    button:hover {
-      background-color: #4CAF50;
     }
     table {
       width: 100%; border-collapse: collapse; background: white;
@@ -30,8 +27,11 @@
 <body>
 
   <h2>Buscador de Motores Taller</h2>
-  
-  <input type="text" id="buscador" placeholder="Ejemplo: motor 100 hp">
+
+  <!-- === TRES FILTROS === -->
+  <input type="text" id="filtroPotencia" placeholder="Filtrar por POTENCIA">
+  <input type="text" id="filtroVelocidad" placeholder="Filtrar por VELOCIDAD">
+  <input type="text" id="filtroFrame" placeholder="Filtrar por FRAME">
   <button id="btnBuscar">Buscar</button>
 
   <table id="tabla">
@@ -40,9 +40,7 @@
   </table>
 
   <script>
-    // === URL de tu hoja publicada en CSV ===
     const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vScl46Cf6OY45LpKuYbI1cF-y5tRMFszwJNGW_oL_Tld2pSgUp6JGEJEasGGSKEfWilu9zTSphSMTUP/pub?output=csv';
-
 
     fetch(url)
       .then(res => res.text())
@@ -50,23 +48,35 @@
         const rows = data.split('\n').map(r => r.split(','));
         const headers = rows[0];
         const body = rows.slice(1);
+
         const thead = document.querySelector('#tabla thead');
         const tbody = document.querySelector('#tabla tbody');
-        const buscador = document.getElementById('buscador');
+
+        const filtroPotencia = document.getElementById('filtroPotencia');
+        const filtroVelocidad = document.getElementById('filtroVelocidad');
+        const filtroFrame = document.getElementById('filtroFrame');
         const btnBuscar = document.getElementById('btnBuscar');
 
-        // Crear encabezados dinámicamente
+        // Crear encabezados
         thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
 
-        // Función para mostrar filas según filtro
-        function mostrar(filtro = '') {
+        // Función de filtrado
+        function mostrar() {
+          const pot = filtroPotencia.value.trim().toLowerCase();
+          const vel = filtroVelocidad.value.trim().toLowerCase();
+          const fra = filtroFrame.value.trim().toLowerCase();
+
           tbody.innerHTML = '';
-          const terminos = filtro.toLowerCase().split(' ').filter(t => t);
 
           body.forEach(row => {
-            const texto = row.join(' ').toLowerCase();
-            const coincide = terminos.every(t => texto.includes(t));
-            if (coincide) {
+            const fila = {};
+            headers.forEach((h, i) => fila[h.trim().toLowerCase()] = row[i].trim().toLowerCase());
+
+            const coincidePot = pot === '' || fila['potencia']?.includes(pot);
+            const coincideVel = vel === '' || fila['velocidad']?.includes(vel);
+            const coincideFra = fra === '' || fila['frame']?.includes(fra);
+
+            if (coincidePot && coincideVel && coincideFra) {
               const tr = document.createElement('tr');
               row.forEach(c => {
                 const td = document.createElement('td');
@@ -78,24 +88,21 @@
           });
         }
 
-        // Mostrar todo inicialmente
+        // Mostrar todo al inicio
         mostrar();
 
-        // Buscar cuando se hace clic en el botón
-        btnBuscar.addEventListener('click', () => {
-          const POTENCIA = buscador.value.trim().toLowerCase();
-          mostrar(`motor ${POTENCIA}`);
-        });
+        // Botón buscar
+        btnBuscar.addEventListener('click', mostrar);
 
-        // También permitir buscar presionando Enter
-        buscador.addEventListener('keypress', e => {
-          if (e.key === 'Enter') mostrar(buscador.value);
+        // Enter en cualquiera de los filtros
+        [filtroPotencia, filtroVelocidad, filtroFrame].forEach(input => {
+          input.addEventListener('keypress', e => {
+            if (e.key === 'Enter') mostrar();
+          });
         });
-      })
-      .catch(err => {
-        console.error('Error al cargar la hoja de cálculo:', err);
       });
   </script>
 
 </body>
 </html>
+
