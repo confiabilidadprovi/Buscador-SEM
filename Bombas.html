@@ -63,7 +63,7 @@
         // Función de filtrado general
         function mostrar() {
           const den = filtroDenominacion.value.trim().toLowerCase();
-          const Cau = filtroCaudal.value.trim().toLowerCase();
+          const cau = filtroCaudal.value.trim().toLowerCase();
           const pot = filtroPotencia.value.trim().toLowerCase();
           
           tbody.innerHTML = '';
@@ -94,7 +94,7 @@
             // FILTRO CAUDAL (PARCIAL)
             // ===============================
             const valorCau = parseInt(fila['caudal']);  
-            const filtroCau = parseInt(Cau);
+            const filtroCau = parseInt(cau);
 
             const coincideCau =
               cau === '' ||
