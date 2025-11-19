@@ -39,70 +39,78 @@
     <tbody></tbody>
   </table>
 
-  <script>
-    const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vScl46Cf6OY45LpKuYbI1cF-y5tRMFszwJNGW_oL_Tld2pSgUp6JGEJEasGGSKEfWilu9zTSphSMTUP/pub?output=csv';
+<script>
+const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vScl46Cf6OY45LpKuYbI1cF-y5tRMFszwJNGW_oL_Tld2pSgUp6JGEJEasGGSKEfWilu9zTSphSMTUP/pub?output=csv';
 
-    fetch(url)
-      .then(res => res.text())
-      .then(data => {
-        const rows = data.split('\n').map(r => r.split(','));
-        const headers = rows[0];
-        const body = rows.slice(1);
+fetch(url)
+  .then(res => res.text())
+  .then(data => {
+    const rows = data.split('\n').map(r => r.split(','));
+    const headers = rows[0];
+    const body = rows.slice(1);
 
-        const thead = document.querySelector('#tabla thead');
-        const tbody = document.querySelector('#tabla tbody');
+    const thead = document.querySelector('#tabla thead');
+    const tbody = document.querySelector('#tabla tbody');
 
-        const filtroPotencia = document.getElementById('filtroPotencia');
-        const filtroVelocidad = document.getElementById('filtroVelocidad');
-        const filtroFrame = document.getElementById('filtroFrame');
-        const btnBuscar = document.getElementById('btnBuscar');
+    const filtroPotencia = document.getElementById('filtroPotencia');
+    const filtroDenominacion = document.getElementById('filtroDenominacion');
+    const filtroFrame = document.getElementById('filtroFrame');
+    const btnBuscar = document.getElementById('btnBuscar');
 
-        // Crear encabezados
-        thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+    // Crear encabezados
+    thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
 
-        // Función de filtrado
-        function mostrar() {
-          const pot = filtroPotencia.value.trim().toLowerCase();
-          const vel = filtroVelocidad.value.trim().toLowerCase();
-          const fra = filtroFrame.value.trim().toLowerCase();
+    // Función de filtrado
+    function mostrar() {
+      const pot = filtroPotencia.value.trim().toLowerCase();
+      const den = filtroDenominacion.value.trim().toLowerCase();
+      const fra = filtroFrame.value.trim().toLowerCase();
 
-          tbody.innerHTML = '';
+      tbody.innerHTML = '';
 
-          body.forEach(row => {
-            const fila = {};
-            headers.forEach((h, i) => fila[h.trim().toLowerCase()] = row[i].trim().toLowerCase());
+      body.forEach(row => {
+        const fila = {};
+        headers.forEach((h, i) => fila[h.trim().toLowerCase()] = row[i].trim().toLowerCase());
 
-            const coincidePot = pot === '' || fila['potencia']?.includes(pot);
-            const coincideVel = vel === '' || fila['velocidad']?.includes(vel);
-            const coincideFra = fra === '' || fila['frame']?.includes(fra);
+        // Convertir potencia del CSV a número entero
+        const valorPot = parseInt(fila['potencia']);
+        const filtroPot = parseInt(pot);
 
-            if (coincidePot && coincideVel && coincideFra) {
-              const tr = document.createElement('tr');
-              row.forEach(c => {
-                const td = document.createElement('td');
-                td.textContent = c;
-                tr.appendChild(td);
-              });
-              tbody.appendChild(tr);
-            }
+        const coincidePot =
+          pot === '' ||
+          (!isNaN(valorPot) && !isNaN(filtroPot) && valorPot === filtroPot);
+
+        const coincideDen =
+          den === '' ||
+          fila['denominación']?.includes(den) ||
+          fila['denominacion']?.includes(den);
+
+        const coincideFra =
+          fra === '' || fila['frame']?.includes(fra);
+
+        if (coincidePot && coincideDen && coincideFra) {
+          const tr = document.createElement('tr');
+          row.forEach(c => {
+            const td = document.createElement('td');
+            td.textContent = c;
+            tr.appendChild(td);
           });
+          tbody.appendChild(tr);
         }
-
-        // Mostrar todo al inicio
-        mostrar();
-
-        // Botón buscar
-        btnBuscar.addEventListener('click', mostrar);
-
-        // Enter en cualquiera de los filtros
-        [filtroPotencia, filtroVelocidad, filtroFrame].forEach(input => {
-          input.addEventListener('keypress', e => {
-            if (e.key === 'Enter') mostrar();
-          });
-        });
       });
-  </script>
+    }
 
+    mostrar();
+
+    btnBuscar.addEventListener('click', mostrar);
+
+    [filtroPotencia, filtroDenominacion, filtroFrame].forEach(input => {
+      input.addEventListener('keypress', e => {
+        if (e.key === 'Enter') mostrar();
+      });
+    });
+  });
+</script>
 </body>
 </html>
 
